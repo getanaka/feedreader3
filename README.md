@@ -10,7 +10,7 @@
     - フィードの定期取得ジョブを実行する
 - sse-starlette
 
-## API
+## 実装予定API
 
 - GET /feeds
     - 保存済みのフィードを取得する
@@ -20,3 +20,11 @@
     - 登録済みのRSS/AtomのフィードのURLを削除する
 - GET /feed/stream
     - SSEとしてサーバからリアルタイムに更新されたフィードの情報を取得する
+
+## コマンド
+
+### 起動
+
+```bash
+uv run fastapi dev
+```
