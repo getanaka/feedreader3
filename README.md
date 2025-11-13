@@ -1,6 +1,11 @@
 # README
 
-## 技術スタック
+## 開発環境
+
+- uv
+- pytest
+
+## 構成パッケージ
 
 - Python3
 - FastAPI
