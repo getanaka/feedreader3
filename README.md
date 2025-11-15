@@ -7,6 +7,7 @@
 - pytest
 - mypy
 - coverage
+- pre-commit
 
 ## 構成パッケージ
 
