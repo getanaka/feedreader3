@@ -4,8 +4,9 @@
 
 - uv
 - ruff
-- pytest
 - mypy
+- pytest
+- pytest-cov
 - coverage
 - pre-commit
 
