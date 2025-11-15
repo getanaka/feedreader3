@@ -16,3 +16,7 @@ dev = [
     "pytest>=9.0.1",
     "ruff>=0.14.4",
 ]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
