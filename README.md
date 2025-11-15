@@ -5,6 +5,7 @@
 - uv
 - ruff
 - pytest
+- mypy
 
 ## 構成パッケージ
 
