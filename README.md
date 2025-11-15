@@ -6,6 +6,7 @@
 - ruff
 - pytest
 - mypy
+- coverage
 
 ## 構成パッケージ
 
