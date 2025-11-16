@@ -36,5 +36,5 @@
 ### 起動
 
 ```bash
-uv run fastapi dev
+uv run fastapi dev feedreader3/main.py
 ```
