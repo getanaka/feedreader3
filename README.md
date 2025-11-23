@@ -22,13 +22,24 @@
 
 ## 実装予定API
 
+### /feed-sources
+
+- POST /feed-sources
+    - フィード取得先を登録する
+- GET /feed-sources
+    - 登録済みのフィード取得先を取得する
+- GET /feed-sources/{feed_source_id}
+    - 登録済みの指定のフィード取得先を取得する
+- PATCH /feed-sources/{feed_source_id}
+    - 登録済みの指定のフィード取得先を更新する
+- DELETE /feed-sources/{feed_source_id}
+    - 登録済みの指定のフィード取得先を削除する
+
+### /feeds
+
 - GET /feeds
     - 保存済みのフィードを取得する
-- POST /feed-urls
-    - RSS/AtomのフィードのURLを登録する
-- DELETE /feed-urls
-    - 登録済みのRSS/AtomのフィードのURLを削除する
-- GET /feed/stream
+- GET /feeds/stream
     - SSEとしてサーバからリアルタイムに更新されたフィードの情報を取得する
 
 ## コマンド
