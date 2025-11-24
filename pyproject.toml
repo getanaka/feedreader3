@@ -19,6 +19,9 @@ dev = [
     "ruff>=0.14.4",
 ]
 
+[tool.uv]
+package = true
+
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
