@@ -49,3 +49,11 @@
 ```bash
 uv run fastapi dev feedreader3/main.py
 ```
+
+### QA
+
+- ruff check/ruff format/mypy/pytestを一括で実行する
+
+```bash
+make qa
+```
