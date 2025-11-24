@@ -17,3 +17,7 @@ repos:
     rev: 'v1.18.2'
     hooks:
     -   id: mypy
+        additional_dependencies:
+        -   "fastapi[standard]>=0.121.1"
+        -   "sqlmodel>=0.0.27"
+        -   "pytest>=9.0.1"
