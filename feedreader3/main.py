@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Generator
+from typing import Annotated, Any, Generator, Sequence, Literal, cast
 from fastapi import FastAPI, status, Depends, Query, HTTPException
 from sqlmodel import (
     Field,
@@ -8,6 +8,8 @@ from sqlmodel import (
     select,
     Relationship,
     UniqueConstraint,
+    func,
+    Column,
 )
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -235,3 +237,26 @@ async def delete_feed_source(feed_source_id: int, session: SessionDep) -> None:
         )
     session.delete(feed_source)
     session.commit()
+
+
+@app.get("/feed-entries")
+async def read_feed_entries(
+    session: SessionDep,
+    start: datetime = datetime.min,
+    end: datetime = datetime.max,
+    order: Literal["asc", "desc"] = "asc",
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+) -> Sequence[FeedEntry]:
+    ts = func.coalesce(FeedEntry.entry_updated_at, FeedEntry.first_seen_at)
+    ts_order = ts.asc() if order == "asc" else ts.desc()
+    id_col = cast(Column[int], FeedEntry.id)
+    id_order = id_col.asc() if order == "asc" else id_col.desc()
+    feed_entries = session.exec(
+        select(FeedEntry)
+        .where(start <= ts, ts <= end)
+        .order_by(ts_order, id_order)
+        .offset(offset)
+        .limit(limit)
+    ).all()
+    return feed_entries
