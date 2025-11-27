@@ -28,6 +28,12 @@
 
 - 毎時0分から10分ごとに、登録されたフィード取得先にアクセスしフィードを取得、その各エントリーをDBへ登録する
 
+### 保存済みフィードエントリーの取得
+
+- 1つのフィードエントリーは、フィード内の1記事に相当する
+- GET /feed-entriesで取得可能
+    - start/endクエリパラメータで任意の時間範囲のフィードエントリーが取得できる
+
 ## 実装予定API
 
 ### /feed-sources
@@ -43,12 +49,12 @@
 - DELETE /feed-sources/{feed_source_id}
     - 登録済みの指定のフィード取得先を削除する
 
-### /feeds
+### /feed-entries
 
-- GET /feeds
-    - 保存済みのフィードを取得する
-- GET /feeds/stream
-    - SSEとしてサーバからリアルタイムに更新されたフィードの情報を取得する
+- GET /feed-entries
+    - 保存済みのフィードエントリーを取得する
+- GET /feed-entries/stream
+    - SSEとしてサーバからリアルタイムに更新されたフィードエントリーを取得する
 
 ## コマンド
 
@@ -65,3 +71,10 @@ uv run fastapi dev feedreader3/main.py
 ```bash
 make qa
 ```
+
+## その他
+
+### タイムゾーン
+
+- SQLiteがタイムゾーン付きdatetimeをサポートしていないため、feedreader3もタイムゾーン無しのnaiveなdatetimeを使用している
+- feedparserはUTCに変換した値を返してくるので、タイムゾーンの指定はないが、feedreader3内部で使用されたりDBに保存されるdatetimeはすべてUTCとなっている
