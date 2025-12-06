@@ -27,3 +27,10 @@ package = true
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["feedreader3"]
+
+[tool.coverage.report]
+show_missing = true
