@@ -12,4 +12,7 @@ typecheck:
 test:
 	uv run pytest
 
+coverage:
+	uv run pytest --cov
+
 qa: lint format typecheck test
