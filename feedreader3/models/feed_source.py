@@ -18,6 +18,6 @@ class FeedSourceCreate(FeedSourceBase):
     pass
 
 
-class FeedSourceUpdate(FeedSourceBase):
-    name: str | None = None  # type: ignore[assignment]
-    feed_url: str | None = None  # type: ignore[assignment]
+class FeedSourceUpdate(SQLModel):
+    name: str | None = None
+    feed_url: str | None = None
