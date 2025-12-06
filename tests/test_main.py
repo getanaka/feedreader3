@@ -7,13 +7,13 @@ import feedparser
 from datetime import datetime, timedelta
 
 from feedreader3.main import (
-    FeedSource,
     FeedEntry,
     FeedEntryCreate,
     app,
     fetch_feeds,
 )
 from feedreader3.dependencies import get_session
+from feedreader3.models.feed_source import FeedSource
 
 
 @pytest.fixture(name="session")

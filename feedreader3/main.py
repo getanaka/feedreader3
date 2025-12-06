@@ -16,31 +16,15 @@ import feedparser
 from datetime import datetime
 from .database import engine, create_db_and_tables
 from .dependencies import SessionDep
+from .models.feed_source import (
+    FeedSource,
+    FeedSourceUpdate,
+    FeedSourcePublic,
+    FeedSourceCreate,
+)
 
 
 # DB
-class FeedSourceBase(SQLModel):
-    name: str = Field(index=True)
-    feed_url: str = Field(index=True)
-
-
-class FeedSource(FeedSourceBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-
-
-class FeedSourcePublic(FeedSourceBase):
-    id: int
-
-
-class FeedSourceCreate(FeedSourceBase):
-    pass
-
-
-class FeedSourceUpdate(FeedSourceBase):
-    name: str | None = None  # type: ignore[assignment]
-    feed_url: str | None = None  # type: ignore[assignment]
-
-
 class FeedEntryBase(SQLModel):
     feed_source_id: int = Field(foreign_key="feedsource.id")
     entry_id: str
