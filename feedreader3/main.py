@@ -4,7 +4,6 @@ from sqlmodel import (
     Field,
     Session,
     SQLModel,
-    create_engine,
     select,
     Relationship,
     UniqueConstraint,
@@ -15,6 +14,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import feedparser
 from datetime import datetime
+from .database import engine, create_db_and_tables
 
 
 # DB
@@ -70,16 +70,6 @@ class FeedEntryUpdate(SQLModel):
     entry_title: str | None
     entry_link: str | None
     entry_updated_at: datetime | None
-
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
-
-
-def create_db_and_tables() -> None:
-    SQLModel.metadata.create_all(engine)
 
 
 def get_session() -> Generator[Session, None, None]:
