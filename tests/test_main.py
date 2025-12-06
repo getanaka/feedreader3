@@ -11,9 +11,9 @@ from feedreader3.main import (
     FeedEntry,
     FeedEntryCreate,
     app,
-    get_session,
     fetch_feeds,
 )
+from feedreader3.dependencies import get_session
 
 
 @pytest.fixture(name="session")

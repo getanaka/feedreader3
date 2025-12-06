@@ -1,5 +1,5 @@
-from typing import Annotated, Any, Generator, Sequence, Literal, cast
-from fastapi import FastAPI, status, Depends, Query, HTTPException
+from typing import Annotated, Any, Sequence, Literal, cast
+from fastapi import FastAPI, status, Query, HTTPException
 from sqlmodel import (
     Field,
     Session,
@@ -15,6 +15,7 @@ from apscheduler.triggers.cron import CronTrigger
 import feedparser
 from datetime import datetime
 from .database import engine, create_db_and_tables
+from .dependencies import SessionDep
 
 
 # DB
@@ -70,14 +71,6 @@ class FeedEntryUpdate(SQLModel):
     entry_title: str | None
     entry_link: str | None
     entry_updated_at: datetime | None
-
-
-def get_session() -> Generator[Session, None, None]:
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
 
 
 # Worker
