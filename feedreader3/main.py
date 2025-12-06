@@ -1,5 +1,5 @@
-from typing import Annotated, Any, Sequence, Literal, cast
-from fastapi import FastAPI, status, Query, HTTPException
+from typing import Annotated, Sequence, Literal, cast
+from fastapi import FastAPI, Query
 from sqlmodel import (
     Field,
     Session,
@@ -16,12 +16,8 @@ import feedparser
 from datetime import datetime
 from .database import engine, create_db_and_tables
 from .dependencies import SessionDep
-from .models.feed_source import (
-    FeedSource,
-    FeedSourceUpdate,
-    FeedSourcePublic,
-    FeedSourceCreate,
-)
+from .models.feed_source import FeedSource
+from .routers import feed_sources
 
 
 # DB
@@ -145,65 +141,7 @@ def on_shutdown() -> None:
     scheduler.shutdown()
 
 
-@app.post(
-    "/feed-sources",
-    status_code=status.HTTP_201_CREATED,
-    response_model=FeedSourcePublic,
-)
-async def create_feed_source(feed_source: FeedSourceCreate, session: SessionDep) -> Any:
-    db_feed_source = FeedSource.model_validate(feed_source)
-    session.add(db_feed_source)
-    session.commit()
-    session.refresh(db_feed_source)
-    return db_feed_source
-
-
-@app.get("/feed-sources", response_model=list[FeedSourcePublic])
-async def read_feed_sources(
-    session: SessionDep,
-    offset: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=1, le=100)] = 100,
-) -> Any:
-    feed_sources = session.exec(select(FeedSource).offset(offset).limit(limit)).all()
-    return feed_sources
-
-
-@app.get("/feed-sources/{feed_source_id}", response_model=FeedSourcePublic)
-async def read_feed_source(feed_source_id: int, session: SessionDep) -> FeedSource:
-    feed_source = session.get(FeedSource, feed_source_id)
-    if not feed_source:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Feed source not found"
-        )
-    return feed_source
-
-
-@app.patch("/feed-sources/{feed_source_id}", response_model=FeedSourcePublic)
-async def update_feed_source(
-    feed_source_id: int, feed_source: FeedSourceUpdate, session: SessionDep
-) -> Any:
-    db_feed_source = session.get(FeedSource, feed_source_id)
-    if not db_feed_source:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Feed source not found"
-        )
-    feed_source_data = feed_source.model_dump(exclude_unset=True)
-    db_feed_source.sqlmodel_update(feed_source_data)
-    session.add(db_feed_source)
-    session.commit()
-    session.refresh(db_feed_source)
-    return db_feed_source
-
-
-@app.delete("/feed-sources/{feed_source_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_feed_source(feed_source_id: int, session: SessionDep) -> None:
-    feed_source = session.get(FeedSource, feed_source_id)
-    if not feed_source:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Feed source not found"
-        )
-    session.delete(feed_source)
-    session.commit()
+app.include_router(feed_sources.router)
 
 
 @app.get("/feed-entries")
