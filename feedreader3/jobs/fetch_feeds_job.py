@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 import feedparser
-from datetime import datetime
+from datetime import datetime, timezone
 from ..database import engine
 from ..models.feed_source import FeedSource
 from ..models.feed_entry import FeedEntry, FeedEntryUpdate, FeedEntryCreate
@@ -51,7 +51,7 @@ def store_feed_entries(
         # Insert new entry
         if db_feed_entry is None:
             feed_entry_create = FeedEntryCreate(
-                first_seen_at=datetime.now(),
+                first_seen_at=datetime.now(timezone.utc),
                 feed_source_id=feed_source.id,
                 entry_id=entry_id,
                 entry_title=entry_title,
