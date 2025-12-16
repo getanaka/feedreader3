@@ -1,23 +1,21 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 from .database import create_db_and_tables
 from .routers import feed_sources, feed_entries
 from .scheduler import background_scheduler
 
-# Web
-app = FastAPI()
 
-
-@app.on_event("startup")
-def on_startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # TODO: Run migration script
     create_db_and_tables()
     background_scheduler.start()
-
-
-@app.on_event("shutdown")
-def on_shutdown() -> None:
+    yield
     background_scheduler.shutdown()
 
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(feed_sources.router)
 app.include_router(feed_entries.router)
