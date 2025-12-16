@@ -2,7 +2,7 @@ from sqlmodel import Session, select
 import feedparser
 from datetime import datetime
 
-from feedreader3.main import fetch_feeds
+from feedreader3.jobs.fetch_feeds_job import fetch_feeds
 from feedreader3.models.feed_source import FeedSource
 from feedreader3.models.feed_entry import FeedEntry, FeedEntryCreate
 
