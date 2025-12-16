@@ -8,7 +8,7 @@ from feedreader3.models.feed_entry import FeedEntry, FeedEntryCreate
 
 
 def test_fetch_feeds_insert(session: Session) -> None:
-    feed_source = FeedSource(name="test_feed", feed_url="tests/atom10.xml")
+    feed_source = FeedSource(name="test_feed", feed_url="tests/jobs/atom10.xml")
     session.add(feed_source)
     session.commit()
     session.refresh(feed_source)
@@ -34,7 +34,7 @@ def test_fetch_feeds_insert(session: Session) -> None:
 
 
 def test_fetch_feeds_update(session: Session) -> None:
-    feed_source = FeedSource(name="test_feed", feed_url="tests/atom10.xml")
+    feed_source = FeedSource(name="test_feed", feed_url="tests/jobs/atom10.xml")
     session.add(feed_source)
     session.commit()
     session.refresh(feed_source)
@@ -73,7 +73,7 @@ def test_fetch_feeds_update(session: Session) -> None:
 
 
 def test_fetch_feeds_add_atom_without_published(session: Session) -> None:
-    feed_source = FeedSource(name="test_feed", feed_url="tests/atom11.xml")
+    feed_source = FeedSource(name="test_feed", feed_url="tests/jobs/atom11.xml")
     session.add(feed_source)
     session.commit()
     session.refresh(feed_source)
@@ -99,7 +99,7 @@ def test_fetch_feeds_add_atom_without_published(session: Session) -> None:
 
 
 def test_fetch_feeds_add_atom_without_published_and_updated(session: Session) -> None:
-    feed_source = FeedSource(name="test_feed", feed_url="tests/atom12.xml")
+    feed_source = FeedSource(name="test_feed", feed_url="tests/jobs/atom12.xml")
     session.add(feed_source)
     session.commit()
     session.refresh(feed_source)
@@ -125,7 +125,7 @@ def test_fetch_feeds_add_atom_without_published_and_updated(session: Session) ->
 
 
 def test_fetch_feeds_add_atom_has_duplicated_id_entries(session: Session) -> None:
-    feed_source = FeedSource(name="test_feed", feed_url="tests/atom13.xml")
+    feed_source = FeedSource(name="test_feed", feed_url="tests/jobs/atom13.xml")
     session.add(feed_source)
     session.commit()
     session.refresh(feed_source)
