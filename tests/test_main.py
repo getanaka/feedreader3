@@ -3,12 +3,9 @@ from sqlmodel import Session, select
 import feedparser
 from datetime import datetime, timedelta
 
-from feedreader3.main import (
-    FeedEntry,
-    FeedEntryCreate,
-    fetch_feeds,
-)
+from feedreader3.main import fetch_feeds
 from feedreader3.models.feed_source import FeedSource
+from feedreader3.models.feed_entry import FeedEntry, FeedEntryCreate
 
 
 def test_fetch_feeds_insert(session: Session) -> None:
