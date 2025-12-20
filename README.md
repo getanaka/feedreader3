@@ -23,6 +23,8 @@ Pythonバックエンドとして、フィード取得先URLの登録API、登�
     - フィードの定期取得ジョブを実行する
 - feedparser
     - RSS/Atomフィードを取得しパースする
+- python-dotenv
+    - `.env`ファイルを読み込む
 - sse-starlette
 
 ## 機能
