@@ -77,6 +77,12 @@ uv run fastapi dev feedreader3/main.py
 make qa
 ```
 
+## 環境変数
+
+FeedReader3の挙動を調整するための環境変数はOSの環境変数 > `.env`ファイル > デフォルト値の優先順位で読み込まれる。つまりOSの環境変数と`.env`ファイルで同じキーの値が提供された場合、FeedReader3はOSの環境変数の値を使い`.env`ファイルの値を無視する。
+
+利用可能な環境変数については`.env.example`ファイルを参照すること。
+
 ## その他
 
 ### タイムゾーン
