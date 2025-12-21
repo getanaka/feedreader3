@@ -1,14 +1,14 @@
 from sqlmodel import Session, select
 import feedparser
 from datetime import datetime, timezone
-from ..database import engine
+from ..database import get_engine
 from ..models.feed_source import FeedSource
 from ..models.feed_entry import FeedEntry, FeedEntryUpdate, FeedEntryCreate
 
 
 def fetch_feeds_job() -> None:
     print("[scheduled_job] Start")
-    with Session(engine) as session:
+    with Session(get_engine()) as session:
         fetch_feeds(session)
     print("[scheduled_job] Done")
 

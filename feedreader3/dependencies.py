@@ -1,11 +1,11 @@
 from typing import Annotated, Generator
 from fastapi import Depends
 from sqlmodel import Session
-from .database import engine
+from .database import get_engine
 
 
 def get_session() -> Generator[Session, None, None]:
-    with Session(engine) as session:
+    with Session(get_engine()) as session:
         yield session
 
 

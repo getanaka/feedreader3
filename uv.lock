@@ -273,6 +273,7 @@ dependencies = [
     { name = "apscheduler" },
     { name = "fastapi", extra = ["standard"] },
     { name = "feedparser" },
+    { name = "python-dotenv" },
     { name = "sqlmodel" },
 ]
 
@@ -291,6 +292,7 @@ requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.1" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.121.1" },
     { name = "feedparser", specifier = ">=6.0.12" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "sqlmodel", specifier = ">=0.0.27" },
 ]
 
