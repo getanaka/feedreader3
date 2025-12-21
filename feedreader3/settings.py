@@ -6,6 +6,8 @@ class Settings:
     scheduler_crontab_expr: str
     scheduler_misfire_grace_time: int
 
+    database_file_name: str
+
 
 _settings: Settings = Settings()
 
@@ -20,6 +22,7 @@ def initialize_settings(
     _settings.scheduler_misfire_grace_time = int(
         os.getenv("SCHEDULER_MISFIRE_GRACE_TIME", 1)
     )
+    _settings.database_file_name = os.getenv("DATABASE_FILE_NAME", "database.db")
 
 
 def get_settings() -> Settings:

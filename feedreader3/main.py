@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print(settings.scheduler_misfire_grace_time)
 
     # DB
-    initialize_engine("database.db")
+    initialize_engine(settings.database_file_name)
 
     # scheduler
     initialize_scheduler(
