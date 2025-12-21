@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-from .database import create_db_and_tables
+from .database import initialize_engine, finalize_engine
 from .routers import feed_sources, feed_entries
 from .scheduler import (
     initialize_scheduler,
@@ -21,8 +21,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print(settings.scheduler_misfire_grace_time)
 
     # DB
-    # TODO: Run migration script
-    create_db_and_tables()
+    initialize_engine("database.db")
 
     # scheduler
     initialize_scheduler(
@@ -35,6 +34,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # scheduler
     shutdown_scheduler()
     finalize_scheduler()
+
+    finalize_engine()
 
 
 app = FastAPI(lifespan=lifespan)
