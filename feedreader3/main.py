@@ -17,8 +17,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # settings
     initialize_settings()
     settings = get_settings()
-    print(settings.scheduler_crontab_expr)
-    print(settings.scheduler_misfire_grace_time)
 
     # DB
     initialize_engine(settings.database_file_name)

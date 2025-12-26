@@ -1,5 +1,8 @@
 import os
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger("uvicorn." + __name__)
 
 
 class Settings:
@@ -19,10 +22,17 @@ def initialize_settings(
         load_dotenv(dotenv_path)
 
     _settings.scheduler_crontab_expr = os.getenv("SCHEDULER_CRONTAB_EXPR", "0 * * * *")
+    logger.info(f"settings.scheduler_crontab_expr={_settings.scheduler_crontab_expr}")
+
     _settings.scheduler_misfire_grace_time = int(
         os.getenv("SCHEDULER_MISFIRE_GRACE_TIME", 1)
     )
+    logger.info(
+        f"settings.scheduler_misfire_grace_time={_settings.scheduler_misfire_grace_time}"
+    )
+
     _settings.database_file_name = os.getenv("DATABASE_FILE_NAME", "database.db")
+    logger.info(f"settings.database_file_name={_settings.database_file_name}")
 
 
 def get_settings() -> Settings:
