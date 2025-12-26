@@ -4,13 +4,16 @@ from datetime import datetime, timezone
 from ..database import get_engine
 from ..models.feed_source import FeedSource
 from ..models.feed_entry import FeedEntry, FeedEntryUpdate, FeedEntryCreate
+import logging
+
+logger = logging.getLogger("uvicorn." + __name__)
 
 
 def fetch_feeds_job() -> None:
-    print("[scheduled_job] Start")
+    logger.info("start fetch_feed_job")
     with Session(get_engine()) as session:
         fetch_feeds(session)
-    print("[scheduled_job] Done")
+    logger.info("end fetch_feed_job")
 
 
 def fetch_feeds(session: Session) -> None:
@@ -60,6 +63,7 @@ def store_feed_entries(
             )
             db_feed_entry = FeedEntry.model_validate(feed_entry_create)
             session.add(db_feed_entry)
+            logger.info(f"Source: {feed_source.name}, New entry: {entry_title}")
         # Update the entry
         else:
             feed_entry_update = FeedEntryUpdate(
@@ -69,5 +73,6 @@ def store_feed_entries(
             )
             dump = feed_entry_update.model_dump(exclude_unset=True)
             db_feed_entry.sqlmodel_update(dump)
+            logger.info(f"Source: {feed_source.name}, Updated entry: {entry_title}")
 
     session.commit()
