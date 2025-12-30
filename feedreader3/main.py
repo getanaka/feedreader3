@@ -10,6 +10,7 @@ from .scheduler import (
     finalize_scheduler,
 )
 from .settings import initialize_settings, get_settings
+from .exception_handlers import global_exception_handler
 
 
 @asynccontextmanager
@@ -40,3 +41,5 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(feed_sources.router)
 app.include_router(feed_entries.router)
+
+app.add_exception_handler(Exception, global_exception_handler)
