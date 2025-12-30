@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from .database import initialize_engine, finalize_engine
-from .routers import feed_sources, feed_entries
+from .routers import health, feed_sources, feed_entries
 from .scheduler import (
     initialize_scheduler,
     startup_scheduler,
@@ -39,6 +39,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 
+app.include_router(health.router)
 app.include_router(feed_sources.router)
 app.include_router(feed_entries.router)
 
