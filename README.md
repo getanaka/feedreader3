@@ -65,8 +65,16 @@ Pythonバックエンドとして、フィード取得先URLの登録API、登�
 
 ### 起動
 
+#### ホスト上で実行
+
 ```bash
 uv run fastapi dev feedreader3/main.py
+```
+
+#### コンテナ上で実行
+
+```bash
+docker run --rm --env-file .env --volume .:/app --volume /app/.venv --publish 8000:8000 -it --name feedreader3-dev $(docker build -q .)
 ```
 
 ### QA
