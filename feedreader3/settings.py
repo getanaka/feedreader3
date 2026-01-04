@@ -9,8 +9,6 @@ class Settings:
     scheduler_crontab_expr: str
     scheduler_misfire_grace_time: int
 
-    database_file_name: str
-
     postgres_user: str
     postgres_password: str
     postgres_db: str
@@ -36,9 +34,6 @@ def initialize_settings(
     logger.info(
         f"settings.scheduler_misfire_grace_time={_settings.scheduler_misfire_grace_time}"
     )
-
-    _settings.database_file_name = os.getenv("DATABASE_FILE_NAME", "database.db")
-    logger.info(f"settings.database_file_name={_settings.database_file_name}")
 
     _settings.postgres_user = os.getenv("POSTGRES_USER", "postgres")
     logger.info(f"settings.postgres_user={_settings.postgres_user}")

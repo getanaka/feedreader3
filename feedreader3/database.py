@@ -5,7 +5,7 @@ from .settings import get_settings
 _engine: Engine | None = None
 
 
-def initialize_engine(database_file_name: str) -> None:
+def initialize_engine() -> None:
     # TODO: Run migration script
     global _engine
     if _engine is not None:
