@@ -25,6 +25,9 @@ dev = [
 [tool.uv]
 package = true
 
+[tool.pytest]
+norecursedirs = ["db-data"]
+
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
