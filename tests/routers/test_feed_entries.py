@@ -3,6 +3,7 @@ from sqlmodel import Session
 from datetime import datetime, timedelta
 
 from feedreader3.models.feed_entry import FeedEntry
+from feedreader3.models.feed_source import FeedSource
 
 
 def test_read_feed_entries_no_entry(session: Session, client: TestClient) -> None:
@@ -14,9 +15,15 @@ def test_read_feed_entries_no_entry(session: Session, client: TestClient) -> Non
 
 
 def test_read_feed_entries_get_2(session: Session, client: TestClient) -> None:
+    # FeedEntry requires a FeedSource due to the foreign key (FeedEntry.feed_source_id)
+    feed_source = FeedSource(name="feed", feed_url="feed.rss")
+    session.add(feed_source)
+    session.commit()
+    session.refresh(feed_source)
+
     feed_entry0 = FeedEntry(
         first_seen_at=datetime(2025, 11, 2),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
@@ -24,7 +31,7 @@ def test_read_feed_entries_get_2(session: Session, client: TestClient) -> None:
     )
     feed_entry1 = FeedEntry(
         first_seen_at=datetime(2025, 11, 2),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
@@ -78,9 +85,14 @@ def test_read_feed_entries_get_2(session: Session, client: TestClient) -> None:
 def test_read_feed_entries_get_middle_1_from_3(
     session: Session, client: TestClient
 ) -> None:
+    # FeedEntry requires a FeedSource due to the foreign key (FeedEntry.feed_source_id)
+    feed_source = FeedSource(name="feed", feed_url="feed.rss")
+    session.add(feed_source)
+    session.commit()
+
     feed_entry0 = FeedEntry(
         first_seen_at=datetime(2025, 11, 1),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
@@ -88,7 +100,7 @@ def test_read_feed_entries_get_middle_1_from_3(
     )
     feed_entry1 = FeedEntry(
         first_seen_at=datetime(2025, 11, 2),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
@@ -96,7 +108,7 @@ def test_read_feed_entries_get_middle_1_from_3(
     )
     feed_entry2 = FeedEntry(
         first_seen_at=datetime(2025, 11, 3),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
@@ -136,9 +148,14 @@ def test_read_feed_entries_get_middle_1_from_3(
 def test_read_feed_entries_get_latest_2_from_3(
     session: Session, client: TestClient
 ) -> None:
+    # FeedEntry requires a FeedSource due to the foreign key (FeedEntry.feed_source_id)
+    feed_source = FeedSource(name="feed", feed_url="feed.rss")
+    session.add(feed_source)
+    session.commit()
+
     feed_entry0 = FeedEntry(
         first_seen_at=datetime(2025, 11, 1),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
@@ -146,7 +163,7 @@ def test_read_feed_entries_get_latest_2_from_3(
     )
     feed_entry1 = FeedEntry(
         first_seen_at=datetime(2025, 11, 2),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
@@ -154,7 +171,7 @@ def test_read_feed_entries_get_latest_2_from_3(
     )
     feed_entry2 = FeedEntry(
         first_seen_at=datetime(2025, 11, 3),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
@@ -210,9 +227,14 @@ def test_read_feed_entries_get_latest_2_from_3(
 def test_read_feed_entries_get_oldest_2_from_3(
     session: Session, client: TestClient
 ) -> None:
+    # FeedEntry requires a FeedSource due to the foreign key (FeedEntry.feed_source_id)
+    feed_source = FeedSource(name="feed", feed_url="feed.rss")
+    session.add(feed_source)
+    session.commit()
+
     feed_entry0 = FeedEntry(
         first_seen_at=datetime(2025, 11, 1),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
@@ -220,7 +242,7 @@ def test_read_feed_entries_get_oldest_2_from_3(
     )
     feed_entry1 = FeedEntry(
         first_seen_at=datetime(2025, 11, 2),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
@@ -228,7 +250,7 @@ def test_read_feed_entries_get_oldest_2_from_3(
     )
     feed_entry2 = FeedEntry(
         first_seen_at=datetime(2025, 11, 3),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
@@ -282,9 +304,14 @@ def test_read_feed_entries_get_oldest_2_from_3(
 
 
 def test_read_feed_entries_get_3_desc(session: Session, client: TestClient) -> None:
+    # FeedEntry requires a FeedSource due to the foreign key (FeedEntry.feed_source_id)
+    feed_source = FeedSource(name="feed", feed_url="feed.rss")
+    session.add(feed_source)
+    session.commit()
+
     feed_entry0 = FeedEntry(
         first_seen_at=datetime(2025, 11, 1),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
@@ -292,7 +319,7 @@ def test_read_feed_entries_get_3_desc(session: Session, client: TestClient) -> N
     )
     feed_entry1 = FeedEntry(
         first_seen_at=datetime(2025, 11, 2),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
@@ -300,7 +327,7 @@ def test_read_feed_entries_get_3_desc(session: Session, client: TestClient) -> N
     )
     feed_entry2 = FeedEntry(
         first_seen_at=datetime(2025, 11, 3),
-        feed_source_id=1,
+        feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
