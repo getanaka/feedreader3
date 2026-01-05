@@ -81,10 +81,12 @@ def test_delete_feed_source(session: Session, client: TestClient) -> None:
     feed_source0 = FeedSource(name="feed_01", feed_url="feed-01.rss")
     session.add(feed_source0)
     session.commit()
+    feed_source0_id = feed_source0.id
 
-    response = client.delete(f"/feed-sources/{feed_source0.id}")
+    response = client.delete(f"/feed-sources/{feed_source0_id}")
+    session.expire_all()
 
-    db_feed_source0 = session.get(FeedSource, feed_source0.id)
+    db_feed_source0 = session.get(FeedSource, feed_source0_id)
 
     assert response.status_code == 204
     assert db_feed_source0 is None

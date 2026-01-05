@@ -6,6 +6,8 @@ logger = logging.getLogger("uvicorn." + __name__)
 
 
 class Settings:
+    environment: str
+
     scheduler_crontab_expr: str
     scheduler_misfire_grace_time: int
 
@@ -24,6 +26,9 @@ def initialize_settings(
 ) -> None:
     if load_dotenv_enabled:
         load_dotenv(dotenv_path)
+
+    _settings.environment = os.getenv("ENVIRONMENT", "dev")
+    logger.info(f"settings.environment={_settings.environment}")
 
     _settings.scheduler_crontab_expr = os.getenv("SCHEDULER_CRONTAB_EXPR", "0 * * * *")
     logger.info(f"settings.scheduler_crontab_expr={_settings.scheduler_crontab_expr}")
