@@ -80,6 +80,7 @@ docker run --rm --env-file .env --volume .:/app --volume /app/.venv --publish 80
 ### QA
 
 - ruff check/ruff format/mypy/pytestを一括で実行する
+- テスト用のDBはdbコンテナにテスト開始時に作成、テスト終了時に削除しているので、テスト実施前に`docker compose up`でdbコンテナを立ち上げておく必要があるので注意
 
 ```bash
 make qa

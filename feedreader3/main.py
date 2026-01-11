@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     settings = get_settings()
 
     # DB
-    initialize_engine(settings.database_file_name)
+    initialize_engine()
 
     # scheduler
     initialize_scheduler(
