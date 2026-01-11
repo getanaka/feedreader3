@@ -2,7 +2,7 @@ import os
 import pytest
 from typing import Generator, Any
 
-from feedreader3.settings import initialize_settings, get_settings
+from feedreader3.settings import initialize_settings, finalize_settings, get_settings
 
 SCHEDULER_CRONTAB_EXPR = "SCHEDULER_CRONTAB_EXPR"
 SCHEDULER_MISFIRE_GRACE_TIME = "SCHEDULER_MISFIRE_GRACE_TIME"
@@ -32,6 +32,7 @@ def settings_fixture() -> Generator[Any, Any, Any]:
     os.environ.pop(POSTGRES_DB, None)
     os.environ.pop(POSTGRES_HOST, None)
     os.environ.pop(POSTGRES_PORT, None)
+    finalize_settings()
     initialize_settings(True, "tests/.env.test")
 
 
@@ -44,6 +45,7 @@ def test_settings(reset_settings: Any) -> None:
     postgres_host = "localhost"
     postgres_port = 5432
 
+    finalize_settings()
     initialize_settings(True, "tests/.env.test")
     settings = get_settings()
 
@@ -61,6 +63,7 @@ def test_settings_load_from_os(reset_settings: Any) -> None:
 
     os.environ[SCHEDULER_CRONTAB_EXPR] = crontab_expr
 
+    finalize_settings()
     initialize_settings(True, "tests/.env.test")
     settings = get_settings()
 
@@ -70,6 +73,7 @@ def test_settings_load_from_os(reset_settings: Any) -> None:
 def test_settings_load_from_dotenv(reset_settings: Any) -> None:
     crontab_expr = "*/10 * * * *"
 
+    finalize_settings()
     initialize_settings(True, "tests/.env.test")
     settings = get_settings()
 
@@ -80,6 +84,7 @@ def test_settings_load_default(reset_settings: Any) -> None:
     # defaults from settings.py
     crontab_expr = "0 * * * *"
 
+    finalize_settings()
     initialize_settings(False)
     settings = get_settings()
 

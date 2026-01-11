@@ -18,12 +18,18 @@ class Settings:
     postgres_port: int
 
 
-_settings: Settings = Settings()
+_settings: Settings | None = None
 
 
 def initialize_settings(
     load_dotenv_enabled: bool = True, dotenv_path: str | None = None
 ) -> None:
+    global _settings
+    if _settings is not None:
+        logger.warning("settings has been already initialized")
+        return
+    _settings = Settings()
+
     if load_dotenv_enabled:
         load_dotenv(dotenv_path)
 
@@ -51,5 +57,15 @@ def initialize_settings(
     logger.info(f"settings.postgres_port={_settings.postgres_port}")
 
 
+def finalize_settings() -> None:
+    global _settings
+    if _settings is None:
+        logger.warning("settings is None")
+        return
+    _settings = None
+
+
 def get_settings() -> Settings:
+    if _settings is None:
+        raise RuntimeError("_settings is None. Call initialize_settings()")
     return _settings
