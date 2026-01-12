@@ -23,6 +23,11 @@ dev = [
     "ruff>=0.14.4",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["feedreader3*"]
+exclude = ["initdb*"]
+
 [tool.uv]
 package = true
 
