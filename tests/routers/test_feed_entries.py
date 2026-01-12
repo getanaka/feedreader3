@@ -403,3 +403,27 @@ def test_read_feed_entries_get_3_desc(session: Session, client: TestClient) -> N
         if feed_entry0.entry_updated_at is not None
         else data[2]["entry_updated_at"] is None
     )
+
+
+def test_read_feed_entries_invalid_start(client: TestClient) -> None:
+    response = client.get("/feed-entries?start=2026-01-12T00:00:00")
+    data = response.json()
+
+    assert response.status_code == 422
+    assert any(
+        err["loc"] == ["query", "start"]
+        and "Invalid datetime, it must be timezone-aware" in err["msg"]
+        for err in data["detail"]
+    )
+
+
+def test_read_feed_entries_invalid_end(client: TestClient) -> None:
+    response = client.get("/feed-entries?end=2026-01-12T00:00:00")
+    data = response.json()
+
+    assert response.status_code == 422
+    assert any(
+        err["loc"] == ["query", "end"]
+        and "Invalid datetime, it must be timezone-aware" in err["msg"]
+        for err in data["detail"]
+    )
