@@ -1,7 +1,7 @@
 from pytest import MonkeyPatch
 from sqlmodel import Session, select
 import feedparser
-from datetime import datetime, tzinfo, timezone
+from datetime import datetime, tzinfo, timezone, timedelta
 from typing import Self
 
 from feedreader3.jobs import fetch_feeds_job
@@ -27,13 +27,22 @@ def test_fetch_feeds_insert(session: Session) -> None:
     assert len(results) == 1
     assert results[0].id is not None
     assert results[0].updated_at is not None
+    assert results[0].updated_at.utcoffset() == timedelta(0)
     assert results[0].first_seen_at is not None
+    assert results[0].first_seen_at.utcoffset() == timedelta(0)
     assert results[0].feed_source_id == feed_source.id
     assert results[0].entry_id == parsed_entry.id
     assert results[0].entry_title == parsed_entry.title
     assert results[0].entry_link == parsed_entry.link
-    # SQLite cannot have timezone so we need to compare datetime without tzinfo.
-    assert results[0].entry_updated_at == datetime(*parsed_entry.updated_parsed[:6])
+    assert results[0].entry_updated_at == datetime(
+        parsed_entry.updated_parsed[0],
+        parsed_entry.updated_parsed[1],
+        parsed_entry.updated_parsed[2],
+        parsed_entry.updated_parsed[3],
+        parsed_entry.updated_parsed[4],
+        parsed_entry.updated_parsed[5],
+        tzinfo=timezone.utc,
+    )
 
 
 def test_fetch_feeds_update(session: Session) -> None:
@@ -43,12 +52,12 @@ def test_fetch_feeds_update(session: Session) -> None:
     session.refresh(feed_source)
 
     feed_entry_create = FeedEntryCreate(
-        first_seen_at=datetime.now(),
+        first_seen_at=datetime.now(timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="tag:feedparser.org,2005-11-09:/docs/examples/atom10.xml:3",
         entry_title="",
         entry_link="",
-        entry_updated_at=datetime.min,
+        entry_updated_at=datetime.min.replace(tzinfo=timezone.utc),
     )
     db_feed_entry = FeedEntry.model_validate(feed_entry_create)
     session.add(db_feed_entry)
@@ -65,14 +74,23 @@ def test_fetch_feeds_update(session: Session) -> None:
     assert len(results) == 1
     assert results[0].id is not None
     assert results[0].updated_at is not None
+    assert results[0].updated_at.utcoffset() == timedelta(0)
     assert results[0].first_seen_at is not None
+    assert results[0].first_seen_at.utcoffset() == timedelta(0)
     assert results[0].feed_source_id == feed_source.id
     assert results[0].entry_id == feed_entry_create.entry_id
     assert results[0].entry_id == parsed_entry.id
     assert results[0].entry_title == parsed_entry.title
     assert results[0].entry_link == parsed_entry.link
-    # SQLite cannot have timezone so we need to compare datetime without tzinfo.
-    assert results[0].entry_updated_at == datetime(*parsed_entry.updated_parsed[:6])
+    assert results[0].entry_updated_at == datetime(
+        parsed_entry.updated_parsed[0],
+        parsed_entry.updated_parsed[1],
+        parsed_entry.updated_parsed[2],
+        parsed_entry.updated_parsed[3],
+        parsed_entry.updated_parsed[4],
+        parsed_entry.updated_parsed[5],
+        tzinfo=timezone.utc,
+    )
 
 
 def test_fetch_feeds_add_atom_without_published(session: Session) -> None:
@@ -92,13 +110,22 @@ def test_fetch_feeds_add_atom_without_published(session: Session) -> None:
     assert len(results) == 1
     assert results[0].id is not None
     assert results[0].updated_at is not None
+    assert results[0].updated_at.utcoffset() == timedelta(0)
     assert results[0].first_seen_at is not None
+    assert results[0].first_seen_at.utcoffset() == timedelta(0)
     assert results[0].feed_source_id == feed_source.id
     assert results[0].entry_id == parsed_entry.id
     assert results[0].entry_title == parsed_entry.title
     assert results[0].entry_link == parsed_entry.link
-    # SQLite cannot have timezone so we need to compare datetime without tzinfo.
-    assert results[0].entry_updated_at == datetime(*parsed_entry.updated_parsed[:6])
+    assert results[0].entry_updated_at == datetime(
+        parsed_entry.updated_parsed[0],
+        parsed_entry.updated_parsed[1],
+        parsed_entry.updated_parsed[2],
+        parsed_entry.updated_parsed[3],
+        parsed_entry.updated_parsed[4],
+        parsed_entry.updated_parsed[5],
+        tzinfo=timezone.utc,
+    )
 
 
 def test_fetch_feeds_add_atom_without_published_and_updated(session: Session) -> None:
@@ -118,12 +145,13 @@ def test_fetch_feeds_add_atom_without_published_and_updated(session: Session) ->
     assert len(results) == 1
     assert results[0].id is not None
     assert results[0].updated_at is not None
+    assert results[0].updated_at.utcoffset() == timedelta(0)
     assert results[0].first_seen_at is not None
+    assert results[0].first_seen_at.utcoffset() == timedelta(0)
     assert results[0].feed_source_id == feed_source.id
     assert results[0].entry_id == parsed_entry.id
     assert results[0].entry_title == parsed_entry.title
     assert results[0].entry_link == parsed_entry.link
-    # SQLite cannot have timezone so we need to compare datetime without tzinfo.
     assert results[0].entry_updated_at is None
 
 
@@ -144,13 +172,22 @@ def test_fetch_feeds_add_atom_has_duplicated_id_entries(session: Session) -> Non
     assert len(results) == 1
     assert results[0].id is not None
     assert results[0].updated_at is not None
+    assert results[0].updated_at.utcoffset() == timedelta(0)
     assert results[0].first_seen_at is not None
+    assert results[0].first_seen_at.utcoffset() == timedelta(0)
     assert results[0].feed_source_id == feed_source.id
     assert results[0].entry_id == parsed_entry.id
     assert results[0].entry_title == parsed_entry.title
     assert results[0].entry_link == parsed_entry.link
-    # SQLite cannot have timezone so we need to compare datetime without tzinfo.
-    assert results[0].entry_updated_at == datetime(*parsed_entry.updated_parsed[:6])
+    assert results[0].entry_updated_at == datetime(
+        parsed_entry.updated_parsed[0],
+        parsed_entry.updated_parsed[1],
+        parsed_entry.updated_parsed[2],
+        parsed_entry.updated_parsed[3],
+        parsed_entry.updated_parsed[4],
+        parsed_entry.updated_parsed[5],
+        tzinfo=timezone.utc,
+    )
 
 
 def test_store_feed_entries_first_seen_at_timezone(
@@ -179,5 +216,4 @@ def test_store_feed_entries_first_seen_at_timezone(
     results = session.exec(select(FeedEntry)).all()
 
     assert has_called["value"]
-    # SQLite stores naive datetime
-    assert results[0].first_seen_at == MockDateTime(1970, 1, 1)
+    assert results[0].first_seen_at == MockDateTime(1970, 1, 1, tzinfo=timezone.utc)

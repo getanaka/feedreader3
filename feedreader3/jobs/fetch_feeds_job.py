@@ -39,7 +39,15 @@ def store_feed_entries(
 
         if parsed_entry.get("updated_parsed") is not None:
             # feedparser returns UTC datetime
-            entry_updated_at = datetime(*parsed_entry.updated_parsed[:6])
+            entry_updated_at = datetime(
+                parsed_entry.updated_parsed[0],
+                parsed_entry.updated_parsed[1],
+                parsed_entry.updated_parsed[2],
+                parsed_entry.updated_parsed[3],
+                parsed_entry.updated_parsed[4],
+                parsed_entry.updated_parsed[5],
+                tzinfo=timezone.utc,
+            )
         else:
             entry_updated_at = None
 
