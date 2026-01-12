@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import urllib.parse
 
 from feedreader3.models.feed_entry import FeedEntry
 from feedreader3.models.feed_source import FeedSource
@@ -22,15 +23,15 @@ def test_read_feed_entries_get_2(session: Session, client: TestClient) -> None:
     session.refresh(feed_source)
 
     feed_entry0 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 2),
+        first_seen_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
-        entry_updated_at=datetime(2025, 11, 2),
+        entry_updated_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
     )
     feed_entry1 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 2),
+        first_seen_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
@@ -49,34 +50,34 @@ def test_read_feed_entries_get_2(session: Session, client: TestClient) -> None:
 
     assert data[0]["id"] is not None
     assert data[0]["updated_at"] is not None
-    assert (
-        data[0]["first_seen_at"] == feed_entry0.first_seen_at.isoformat()
-        if feed_entry0.first_seen_at is not None
-        else data[0]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[0]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[0]["first_seen_at"] == feed_entry0.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[0]["feed_source_id"] == feed_entry0.feed_source_id
     assert data[0]["entry_id"] == feed_entry0.entry_id
     assert data[0]["entry_title"] == feed_entry0.entry_title
     assert data[0]["entry_link"] == feed_entry0.entry_link
     assert (
-        data[0]["entry_updated_at"] == feed_entry0.entry_updated_at.isoformat()
+        data[0]["entry_updated_at"]
+        == feed_entry0.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry0.entry_updated_at is not None
         else data[0]["entry_updated_at"] is None
     )
 
     assert data[1]["id"] is not None
     assert data[1]["updated_at"] is not None
-    assert (
-        data[1]["first_seen_at"] == feed_entry1.first_seen_at.isoformat()
-        if feed_entry1.first_seen_at is not None
-        else data[1]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[1]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[1]["first_seen_at"] == feed_entry1.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[1]["feed_source_id"] == feed_entry1.feed_source_id
     assert data[1]["entry_id"] == feed_entry1.entry_id
     assert data[1]["entry_title"] == feed_entry1.entry_title
     assert data[1]["entry_link"] == feed_entry1.entry_link
     assert (
-        data[1]["entry_updated_at"] == feed_entry1.entry_updated_at.isoformat()
+        data[1]["entry_updated_at"]
+        == feed_entry1.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry1.entry_updated_at is not None
         else data[1]["entry_updated_at"] is None
     )
@@ -91,36 +92,40 @@ def test_read_feed_entries_get_middle_1_from_3(
     session.commit()
 
     feed_entry0 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 1),
+        first_seen_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
-        entry_updated_at=datetime(2025, 11, 1),
+        entry_updated_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
     )
     feed_entry1 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 2),
+        first_seen_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
-        entry_updated_at=datetime(2025, 11, 2),
+        entry_updated_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
     )
     feed_entry2 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 3),
+        first_seen_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
-        entry_updated_at=datetime(2025, 11, 3),
+        entry_updated_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
     )
     session.add(feed_entry0)
     session.add(feed_entry1)
     session.add(feed_entry2)
     session.commit()
 
-    start = datetime(2025, 11, 2).isoformat()
-    end = (datetime(2025, 11, 3) - timedelta(seconds=1)).isoformat()
+    start = datetime(2025, 11, 2, tzinfo=timezone.utc).isoformat()
+    start = urllib.parse.quote(start)
+    end = (
+        datetime(2025, 11, 3, tzinfo=timezone.utc) - timedelta(seconds=1)
+    ).isoformat()
+    end = urllib.parse.quote(end)
 
     response = client.get(f"/feed-entries?start={start}&end={end}&order=asc")
     data = response.json()
@@ -129,17 +134,17 @@ def test_read_feed_entries_get_middle_1_from_3(
     assert len(data) == 1
     assert data[0]["id"] is not None
     assert data[0]["updated_at"] is not None
-    assert (
-        data[0]["first_seen_at"] == feed_entry1.first_seen_at.isoformat()
-        if feed_entry1.first_seen_at is not None
-        else data[0]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[0]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[0]["first_seen_at"] == feed_entry1.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[0]["feed_source_id"] == feed_entry1.feed_source_id
     assert data[0]["entry_id"] == feed_entry1.entry_id
     assert data[0]["entry_title"] == feed_entry1.entry_title
     assert data[0]["entry_link"] == feed_entry1.entry_link
     assert (
-        data[0]["entry_updated_at"] == feed_entry1.entry_updated_at.isoformat()
+        data[0]["entry_updated_at"]
+        == feed_entry1.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry1.entry_updated_at is not None
         else data[0]["entry_updated_at"] is None
     )
@@ -154,35 +159,36 @@ def test_read_feed_entries_get_latest_2_from_3(
     session.commit()
 
     feed_entry0 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 1),
+        first_seen_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
-        entry_updated_at=datetime(2025, 11, 1),
+        entry_updated_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
     )
     feed_entry1 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 2),
+        first_seen_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
-        entry_updated_at=datetime(2025, 11, 2),
+        entry_updated_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
     )
     feed_entry2 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 3),
+        first_seen_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
-        entry_updated_at=datetime(2025, 11, 3),
+        entry_updated_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
     )
     session.add(feed_entry0)
     session.add(feed_entry1)
     session.add(feed_entry2)
     session.commit()
 
-    start = datetime(2025, 11, 2).isoformat()
+    start = datetime(2025, 11, 2, tzinfo=timezone.utc).isoformat()
+    start = urllib.parse.quote(start)
 
     response = client.get(f"/feed-entries?start={start}&order=asc")
     data = response.json()
@@ -191,34 +197,34 @@ def test_read_feed_entries_get_latest_2_from_3(
     assert len(data) == 2
     assert data[0]["id"] is not None
     assert data[0]["updated_at"] is not None
-    assert (
-        data[0]["first_seen_at"] == feed_entry1.first_seen_at.isoformat()
-        if feed_entry1.first_seen_at is not None
-        else data[0]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[0]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[0]["first_seen_at"] == feed_entry1.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[0]["feed_source_id"] == feed_entry1.feed_source_id
     assert data[0]["entry_id"] == feed_entry1.entry_id
     assert data[0]["entry_title"] == feed_entry1.entry_title
     assert data[0]["entry_link"] == feed_entry1.entry_link
     assert (
-        data[0]["entry_updated_at"] == feed_entry1.entry_updated_at.isoformat()
+        data[0]["entry_updated_at"]
+        == feed_entry1.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry1.entry_updated_at is not None
         else data[0]["entry_updated_at"] is None
     )
 
     assert data[1]["id"] is not None
     assert data[1]["updated_at"] is not None
-    assert (
-        data[1]["first_seen_at"] == feed_entry2.first_seen_at.isoformat()
-        if feed_entry2.first_seen_at is not None
-        else data[1]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[1]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[1]["first_seen_at"] == feed_entry2.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[1]["feed_source_id"] == feed_entry2.feed_source_id
     assert data[1]["entry_id"] == feed_entry2.entry_id
     assert data[1]["entry_title"] == feed_entry2.entry_title
     assert data[1]["entry_link"] == feed_entry2.entry_link
     assert (
-        data[1]["entry_updated_at"] == feed_entry2.entry_updated_at.isoformat()
+        data[1]["entry_updated_at"]
+        == feed_entry2.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry2.entry_updated_at is not None
         else data[1]["entry_updated_at"] is None
     )
@@ -233,35 +239,38 @@ def test_read_feed_entries_get_oldest_2_from_3(
     session.commit()
 
     feed_entry0 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 1),
+        first_seen_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
-        entry_updated_at=datetime(2025, 11, 1),
+        entry_updated_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
     )
     feed_entry1 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 2),
+        first_seen_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
-        entry_updated_at=datetime(2025, 11, 2),
+        entry_updated_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
     )
     feed_entry2 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 3),
+        first_seen_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
-        entry_updated_at=datetime(2025, 11, 3),
+        entry_updated_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
     )
     session.add(feed_entry0)
     session.add(feed_entry1)
     session.add(feed_entry2)
     session.commit()
 
-    end = (datetime(2025, 11, 3) - timedelta(seconds=1)).isoformat()
+    end = (
+        datetime(2025, 11, 3, tzinfo=timezone.utc) - timedelta(seconds=1)
+    ).isoformat()
+    end = urllib.parse.quote(end)
 
     response = client.get(f"/feed-entries?end={end}&order=asc")
     data = response.json()
@@ -270,34 +279,34 @@ def test_read_feed_entries_get_oldest_2_from_3(
     assert len(data) == 2
     assert data[0]["id"] is not None
     assert data[0]["updated_at"] is not None
-    assert (
-        data[0]["first_seen_at"] == feed_entry0.first_seen_at.isoformat()
-        if feed_entry0.first_seen_at is not None
-        else data[0]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[0]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[0]["first_seen_at"] == feed_entry0.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[0]["feed_source_id"] == feed_entry0.feed_source_id
     assert data[0]["entry_id"] == feed_entry0.entry_id
     assert data[0]["entry_title"] == feed_entry0.entry_title
     assert data[0]["entry_link"] == feed_entry0.entry_link
     assert (
-        data[0]["entry_updated_at"] == feed_entry0.entry_updated_at.isoformat()
+        data[0]["entry_updated_at"]
+        == feed_entry0.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry0.entry_updated_at is not None
         else data[0]["entry_updated_at"] is None
     )
 
     assert data[1]["id"] is not None
     assert data[1]["updated_at"] is not None
-    assert (
-        data[1]["first_seen_at"] == feed_entry1.first_seen_at.isoformat()
-        if feed_entry1.first_seen_at is not None
-        else data[1]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[1]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[1]["first_seen_at"] == feed_entry1.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[1]["feed_source_id"] == feed_entry1.feed_source_id
     assert data[1]["entry_id"] == feed_entry1.entry_id
     assert data[1]["entry_title"] == feed_entry1.entry_title
     assert data[1]["entry_link"] == feed_entry1.entry_link
     assert (
-        data[1]["entry_updated_at"] == feed_entry1.entry_updated_at.isoformat()
+        data[1]["entry_updated_at"]
+        == feed_entry1.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry1.entry_updated_at is not None
         else data[1]["entry_updated_at"] is None
     )
@@ -310,28 +319,28 @@ def test_read_feed_entries_get_3_desc(session: Session, client: TestClient) -> N
     session.commit()
 
     feed_entry0 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 1),
+        first_seen_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry0",
         entry_title="Feed Entry 0",
         entry_link="feed-entry0.html",
-        entry_updated_at=datetime(2025, 11, 1),
+        entry_updated_at=datetime(2025, 11, 1, tzinfo=timezone.utc),
     )
     feed_entry1 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 2),
+        first_seen_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry1",
         entry_title="Feed Entry 1",
         entry_link="feed-entry1.html",
-        entry_updated_at=datetime(2025, 11, 2),
+        entry_updated_at=datetime(2025, 11, 2, tzinfo=timezone.utc),
     )
     feed_entry2 = FeedEntry(
-        first_seen_at=datetime(2025, 11, 3),
+        first_seen_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
         feed_source_id=feed_source.id,
         entry_id="feed_entry2",
         entry_title="Feed Entry 2",
         entry_link="feed-entry2.html",
-        entry_updated_at=datetime(2025, 11, 3),
+        entry_updated_at=datetime(2025, 11, 3, tzinfo=timezone.utc),
     )
     session.add(feed_entry0)
     session.add(feed_entry1)
@@ -346,51 +355,75 @@ def test_read_feed_entries_get_3_desc(session: Session, client: TestClient) -> N
 
     assert data[0]["id"] is not None
     assert data[0]["updated_at"] is not None
-    assert (
-        data[0]["first_seen_at"] == feed_entry2.first_seen_at.isoformat()
-        if feed_entry2.first_seen_at is not None
-        else data[0]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[0]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[0]["first_seen_at"] == feed_entry2.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[0]["feed_source_id"] == feed_entry2.feed_source_id
     assert data[0]["entry_id"] == feed_entry2.entry_id
     assert data[0]["entry_title"] == feed_entry2.entry_title
     assert data[0]["entry_link"] == feed_entry2.entry_link
     assert (
-        data[0]["entry_updated_at"] == feed_entry2.entry_updated_at.isoformat()
+        data[0]["entry_updated_at"]
+        == feed_entry2.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry2.entry_updated_at is not None
         else data[0]["entry_updated_at"] is None
     )
 
     assert data[1]["id"] is not None
     assert data[1]["updated_at"] is not None
-    assert (
-        data[1]["first_seen_at"] == feed_entry1.first_seen_at.isoformat()
-        if feed_entry1.first_seen_at is not None
-        else data[1]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[1]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[1]["first_seen_at"] == feed_entry1.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[1]["feed_source_id"] == feed_entry1.feed_source_id
     assert data[1]["entry_id"] == feed_entry1.entry_id
     assert data[1]["entry_title"] == feed_entry1.entry_title
     assert data[1]["entry_link"] == feed_entry1.entry_link
     assert (
-        data[1]["entry_updated_at"] == feed_entry1.entry_updated_at.isoformat()
+        data[1]["entry_updated_at"]
+        == feed_entry1.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry1.entry_updated_at is not None
         else data[1]["entry_updated_at"] is None
     )
 
     assert data[2]["id"] is not None
     assert data[2]["updated_at"] is not None
-    assert (
-        data[2]["first_seen_at"] == feed_entry0.first_seen_at.isoformat()
-        if feed_entry0.first_seen_at is not None
-        else data[2]["first_seen_at"] is None
+    assert datetime.fromisoformat(data[2]["updated_at"]).utcoffset() == timedelta(0)
+    assert data[2]["first_seen_at"] == feed_entry0.first_seen_at.isoformat().replace(
+        "+00:00", "Z"
     )
     assert data[2]["feed_source_id"] == feed_entry0.feed_source_id
     assert data[2]["entry_id"] == feed_entry0.entry_id
     assert data[2]["entry_title"] == feed_entry0.entry_title
     assert data[2]["entry_link"] == feed_entry0.entry_link
     assert (
-        data[2]["entry_updated_at"] == feed_entry0.entry_updated_at.isoformat()
+        data[2]["entry_updated_at"]
+        == feed_entry0.entry_updated_at.isoformat().replace("+00:00", "Z")
         if feed_entry0.entry_updated_at is not None
         else data[2]["entry_updated_at"] is None
+    )
+
+
+def test_read_feed_entries_invalid_start(client: TestClient) -> None:
+    response = client.get("/feed-entries?start=2026-01-12T00:00:00")
+    data = response.json()
+
+    assert response.status_code == 422
+    assert any(
+        err["loc"] == ["query", "start"]
+        and "Invalid datetime, it must be timezone-aware" in err["msg"]
+        for err in data["detail"]
+    )
+
+
+def test_read_feed_entries_invalid_end(client: TestClient) -> None:
+    response = client.get("/feed-entries?end=2026-01-12T00:00:00")
+    data = response.json()
+
+    assert response.status_code == 422
+    assert any(
+        err["loc"] == ["query", "end"]
+        and "Invalid datetime, it must be timezone-aware" in err["msg"]
+        for err in data["detail"]
     )
