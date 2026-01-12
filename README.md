@@ -18,7 +18,7 @@ Pythonバックエンドとして、フィード取得先URLの登録API、登�
 - Python3
 - FastAPI
 - SQLModel
-    - SQLite
+    - PostgreSQL
 - APScheduler
     - フィードの定期取得ジョブを実行する
 - feedparser
@@ -91,10 +91,3 @@ make qa
 FeedReader3の挙動を調整するための環境変数はOSの環境変数 > `.env`ファイル > デフォルト値の優先順位で読み込まれる。つまりOSの環境変数と`.env`ファイルで同じキーの値が提供された場合、FeedReader3はOSの環境変数の値を使い`.env`ファイルの値を無視する。
 
 利用可能な環境変数については`.env.example`ファイルを参照すること。
-
-## その他
-
-### タイムゾーン
-
-- SQLiteがタイムゾーン付きdatetimeをサポートしていないため、feedreader3もタイムゾーン無しのnaiveなdatetimeを使用している
-- feedparserはUTCに変換した値を返してくるので、タイムゾーンの指定はないが、feedreader3内部で使用されたりDBに保存されるdatetimeはすべてUTCとなっている
