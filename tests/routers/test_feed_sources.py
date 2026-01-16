@@ -27,6 +27,42 @@ def test_create_feed_source_invalid(client: TestClient) -> None:
     assert response.status_code == 422
 
 
+def test_create_feed_source_duplicate_name(
+    session: Session, client: TestClient
+) -> None:
+    name = "name"
+
+    feed_source = FeedSource(name=name, feed_url="feed-url-0.rss")
+    session.add(feed_source)
+    session.commit()
+
+    response = client.post(
+        "/feed-sources", json={"name": name, "feed_url": "feed-url-1.rss"}
+    )
+    data = response.json()
+
+    assert response.status_code == 409
+    assert data["detail"]["field"] == "name"
+    assert data["detail"]["message"] == "already exists"
+
+
+def test_create_feed_source_duplicate_url(session: Session, client: TestClient) -> None:
+    feed_url = "source_url"
+
+    feed_source = FeedSource(name="name0", feed_url=feed_url)
+    session.add(feed_source)
+    session.commit()
+
+    response = client.post(
+        "/feed-sources", json={"name": "name1", "feed_url": feed_url}
+    )
+    data = response.json()
+
+    assert response.status_code == 409
+    assert data["detail"]["field"] == "feed_url"
+    assert data["detail"]["message"] == "already exists"
+
+
 def test_read_feed_sources(session: Session, client: TestClient) -> None:
     feed_source0 = FeedSource(name="feed_01", feed_url="feed-01.rss")
     feed_source1 = FeedSource(name="feed_02", feed_url="feed-02.rss")
@@ -75,6 +111,42 @@ def test_update_feed_source(session: Session, client: TestClient) -> None:
     assert data["name"] == "feed_02"
     assert data["feed_url"] == feed_source0.feed_url
     assert data["id"] == feed_source0.id
+
+
+def test_update_feed_source_duplicate_name(
+    session: Session, client: TestClient
+) -> None:
+    feed_source0 = FeedSource(name="name0", feed_url="feed-url-0.rss")
+    feed_source1 = FeedSource(name="name1", feed_url="feed-url-1.rss")
+    session.add(feed_source0)
+    session.add(feed_source1)
+    session.commit()
+
+    name = "name1"
+
+    response = client.patch(f"/feed-sources/{feed_source0.id}", json={"name": name})
+    data = response.json()
+
+    assert response.status_code == 409
+    assert data["detail"]["field"] == "name"
+    assert data["detail"]["message"] == "already exists"
+
+
+def test_update_feed_source_duplicate_url(session: Session, client: TestClient) -> None:
+    feed_source0 = FeedSource(name="name0", feed_url="feed-url-0.rss")
+    feed_source1 = FeedSource(name="name1", feed_url="feed-url-1.rss")
+    session.add(feed_source0)
+    session.add(feed_source1)
+    session.commit()
+
+    url = "feed-url-1.rss"
+
+    response = client.patch(f"/feed-sources/{feed_source0.id}", json={"feed_url": url})
+    data = response.json()
+
+    assert response.status_code == 409
+    assert data["detail"]["field"] == "feed_url"
+    assert data["detail"]["message"] == "already exists"
 
 
 def test_delete_feed_source(session: Session, client: TestClient) -> None:
