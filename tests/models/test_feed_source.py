@@ -9,10 +9,10 @@ from feedreader3.models.feed_source import FeedSource
 
 def test_feed_source_unique_constraint_name(session: Session) -> None:
     with pytest.raises(IntegrityError) as excinfo:
-        feed_source0 = FeedSource(name="name", feed_url="feed-url-0.rss")
-        feed_source1 = FeedSource(name="name", feed_url="feed-url-1.rss")
-        session.add(feed_source0)
+        feed_source1 = FeedSource(name="feed", feed_url="http://example.com/feed1.xml")
+        feed_source2 = FeedSource(name="feed", feed_url="http://example.com/feed2.xml")
         session.add(feed_source1)
+        session.add(feed_source2)
         session.commit()
 
     orig = cast(UniqueViolation, excinfo.value.orig)
@@ -25,10 +25,10 @@ def test_feed_source_unique_constraint_name(session: Session) -> None:
 
 def test_feed_source_unique_constraint_url(session: Session) -> None:
     with pytest.raises(IntegrityError) as excinfo:
-        feed_source0 = FeedSource(name="name0", feed_url="feed-url.rss")
-        feed_source1 = FeedSource(name="name1", feed_url="feed-url.rss")
-        session.add(feed_source0)
+        feed_source1 = FeedSource(name="feed1", feed_url="http://example.com/feed.xml")
+        feed_source2 = FeedSource(name="feed2", feed_url="http://example.com/feed.xml")
         session.add(feed_source1)
+        session.add(feed_source2)
         session.commit()
 
     orig = cast(UniqueViolation, excinfo.value.orig)

@@ -11,6 +11,7 @@ from ..dependencies import SessionDep
 from sqlalchemy.exc import IntegrityError as SqlAlchemyIntegrityError
 from psycopg.errors import IntegrityError as PsycopgIntegrityError
 from typing import cast
+from ..models.feed_source import convert_url
 
 
 router = APIRouter(prefix="/feed-sources")
@@ -96,6 +97,8 @@ async def update_feed_source(
             status_code=status.HTTP_404_NOT_FOUND, detail="Feed source not found"
         )
     feed_source_data = feed_source.model_dump(exclude_unset=True)
+    if "feed_url" in feed_source_data:
+        feed_source_data["feed_url"] = convert_url(feed_source_data["feed_url"])
     db_feed_source.sqlmodel_update(feed_source_data)
     session.add(db_feed_source)
     try_commit(session)
