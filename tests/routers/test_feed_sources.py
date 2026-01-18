@@ -25,8 +25,10 @@ def test_create_feed_source_incomplete(client: TestClient) -> None:
     assert response.status_code == 422
 
 
-def test_create_feed_source_invalid(client: TestClient) -> None:
-    response = client.post("/feed-sources", json={"name": "feed", "feed_url": 100})
+def test_create_feed_source_invalid_url(client: TestClient) -> None:
+    response = client.post(
+        "/feed-sources", json={"name": "feed", "feed_url": "example.com/feed.xml"}
+    )
 
     assert response.status_code == 422
 
@@ -152,6 +154,18 @@ def test_update_feed_source_duplicate_url(session: Session, client: TestClient) 
     assert response.status_code == 409
     assert data["detail"]["field"] == "feed_url"
     assert data["detail"]["message"] == "already exists"
+
+
+def test_update_feed_source_invalid_url(session: Session, client: TestClient) -> None:
+    feed_source = FeedSource(name="feed", feed_url="http://example.com/feed.xml")
+    session.add(feed_source)
+    session.commit()
+
+    response = client.patch(
+        f"/feed-sources/{feed_source.id}", json={"feed_url": "example.com/feed.xml"}
+    )
+
+    assert response.status_code == 422
 
 
 def test_delete_feed_source(session: Session, client: TestClient) -> None:
