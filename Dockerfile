@@ -28,5 +28,3 @@ ENTRYPOINT []
 # DEV ONLY
 # This Dockerfile is for dev. so root is used as a user run the container.
 # USER nonroot
-
-CMD ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "./feedreader3/main.py"]

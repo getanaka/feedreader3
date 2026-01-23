@@ -6,7 +6,7 @@ from ..models.feed_source import FeedSource
 from ..models.feed_entry import FeedEntry, FeedEntryUpdate, FeedEntryCreate
 import logging
 
-logger = logging.getLogger("uvicorn." + __name__)
+logger = logging.getLogger(__name__)
 
 
 def fetch_feeds_job() -> None:
