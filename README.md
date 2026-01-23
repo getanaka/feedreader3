@@ -15,17 +15,20 @@ Pythonバックエンドとして、フィード取得先URLの登録API、登�
 
 ## 構成パッケージ
 
-- Python3
 - FastAPI
 - SQLModel
-    - PostgreSQL
+- PostgreSQL
 - APScheduler
     - フィードの定期取得ジョブを実行する
 - feedparser
     - RSS/Atomフィードを取得しパースする
 - python-dotenv
     - `.env`ファイルを読み込む
+- watchfiles
+    - workerコンテナでコードの変更を検出し再実行するために導入
 - sse-starlette
+    - TODO
+    - GET /feed-entries/stream実装時に導入予定
 
 ## 機能
 
@@ -39,7 +42,7 @@ Pythonバックエンドとして、フィード取得先URLの登録API、登�
 - GET /feed-entriesで取得可能
     - start/endクエリパラメータで任意の時間範囲のフィードエントリーが取得できる
 
-## 実装予定API
+## API
 
 ### /feed-sources
 
@@ -59,28 +62,21 @@ Pythonバックエンドとして、フィード取得先URLの登録API、登�
 - GET /feed-entries
     - 保存済みのフィードエントリーを取得する
 - GET /feed-entries/stream
+    - TODO
     - SSEとしてサーバからリアルタイムに更新されたフィードエントリーを取得する
 
 ## コマンド
 
 ### 起動
 
-#### ホスト上で実行
-
 ```bash
-uv run fastapi dev feedreader3/main.py
-```
-
-#### コンテナ上で実行
-
-```bash
-docker run --rm --env-file .env --volume .:/app --volume /app/.venv --publish 8000:8000 -it --name feedreader3-dev $(docker build -q .)
+docker compose up
 ```
 
 ### QA
 
 - ruff check/ruff format/mypy/pytestを一括で実行する
-- テスト用のDBはdbコンテナにテスト開始時に作成、テスト終了時に削除しているので、テスト実施前に`docker compose up`でdbコンテナを立ち上げておく必要があるので注意
+- テスト用のDBはdbコンテナにあるので、テスト実施前に`docker compose up`でdbコンテナを立ち上げておく必要があることに注意
 
 ```bash
 make qa
