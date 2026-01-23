@@ -10,6 +10,17 @@ services:
       - .:/app
       - /app/.venv
     restart: "no"
+    command: ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "./feedreader3/main.py"]
+  worker:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/.venv
+    restart: "no"
+    command: ["uv", "run", "watchfiles", "python -m feedreader3.worker", "./feedreader3"]
   db:
     image: postgres:18.1
     ports:

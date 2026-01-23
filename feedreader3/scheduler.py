@@ -1,26 +1,34 @@
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from .jobs.fetch_feeds_job import fetch_feeds_job
 from datetime import timezone
+import logging
 
-_background_scheduler: BackgroundScheduler | None = None
+logger = logging.getLogger(__name__)
+
+_scheduler: BlockingScheduler | None = None
 
 
-def get_scheduler() -> BackgroundScheduler:
-    if _background_scheduler is None:
-        raise RuntimeError("_background_scheduler is None. Call initialize_scheduler()")
-    return _background_scheduler
+def get_scheduler() -> BlockingScheduler:
+    if _scheduler is None:
+        raise RuntimeError("_scheduler is None. Call initialize_scheduler()")
+    return _scheduler
 
 
 def initialize_scheduler(crontab_expr: str, misfire_grace_time: int) -> None:
-    global _background_scheduler
-    if _background_scheduler is not None:
-        raise RuntimeError(
-            "_background_scheduler is not None. Call finalize_scheduler() before initialization"
-        )
+    global _scheduler
+    if _scheduler is not None:
+        if _scheduler.running:
+            # With BlockingScheduler, control never returns after start().
+            # So this exception is never raised.
+            raise RuntimeError(
+                "_scheduler is running. BlockingScheduler cannot be reinitialized"
+            )
+        logger.warning("_scheduler has been already initialized. Reinitialize it")
+        _scheduler = None
 
-    _background_scheduler = BackgroundScheduler()
-    _background_scheduler.add_job(
+    _scheduler = BlockingScheduler()
+    _scheduler.add_job(
         fetch_feeds_job,
         CronTrigger.from_crontab(crontab_expr, timezone.utc),
         misfire_grace_time=misfire_grace_time,
@@ -28,23 +36,5 @@ def initialize_scheduler(crontab_expr: str, misfire_grace_time: int) -> None:
     )
 
 
-def finalize_scheduler() -> None:
-    global _background_scheduler
-    if _background_scheduler is None:
-        raise RuntimeError("_background_scheduler is None. Call initialize_scheduler()")
-    elif _background_scheduler.running:
-        raise RuntimeError(
-            "_background_scheduler is running. Call shutdown_scheduler() before finalization"
-        )
-
-    _background_scheduler = None
-
-
 def startup_scheduler() -> None:
     get_scheduler().start()
-
-
-def shutdown_scheduler() -> None:
-    scheduler = get_scheduler()
-    if scheduler.running:
-        scheduler.shutdown()

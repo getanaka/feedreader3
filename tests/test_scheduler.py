@@ -1,13 +1,12 @@
 import pytest
 from typing import Generator
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from datetime import timezone
 
 from feedreader3.scheduler import (
     initialize_scheduler,
     get_scheduler,
-    finalize_scheduler,
 )
 
 CRONTAB_EXPR = "*/10 * * * *"
@@ -15,15 +14,12 @@ MISFIRE_GRACE_TIME = 30
 
 
 @pytest.fixture(name="scheduler")
-def scheduler_fixture() -> Generator[BackgroundScheduler, None, None]:
+def scheduler_fixture() -> Generator[BlockingScheduler, None, None]:
     initialize_scheduler(CRONTAB_EXPR, MISFIRE_GRACE_TIME)
-    try:
-        yield get_scheduler()
-    finally:
-        finalize_scheduler()
+    yield get_scheduler()
 
 
-def test_fetch_job_scheduler_configuration(scheduler: BackgroundScheduler) -> None:
+def test_fetch_job_scheduler_configuration(scheduler: BlockingScheduler) -> None:
     jobs = scheduler.get_jobs()
 
     fetch_job = None
