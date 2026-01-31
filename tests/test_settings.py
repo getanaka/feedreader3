@@ -5,7 +5,6 @@ from typing import Generator, Any
 from feedreader3.settings import initialize_settings, finalize_settings, get_settings
 
 
-ENVIRONMENT = "ENVIRONMENT"
 SCHEDULER_CRONTAB_EXPR = "SCHEDULER_CRONTAB_EXPR"
 SCHEDULER_MISFIRE_GRACE_TIME = "SCHEDULER_MISFIRE_GRACE_TIME"
 POSTGRES_USER = "POSTGRES_USER"
@@ -29,7 +28,6 @@ def push_environ(key: str, value: str | None) -> None:
 def settings_fixture() -> Generator[Any, Any, Any]:
     # Revert to unitinialized
     finalize_settings()
-    environment = pop_environ(ENVIRONMENT)
     scheduler_crontab_expr = pop_environ(SCHEDULER_CRONTAB_EXPR)
     scheduler_misfire_grace_time = pop_environ(SCHEDULER_MISFIRE_GRACE_TIME)
     postgres_user = pop_environ(POSTGRES_USER)
@@ -41,7 +39,6 @@ def settings_fixture() -> Generator[Any, Any, Any]:
     yield
 
     finalize_settings()
-    push_environ(ENVIRONMENT, environment)
     push_environ(SCHEDULER_CRONTAB_EXPR, scheduler_crontab_expr)
     push_environ(SCHEDULER_MISFIRE_GRACE_TIME, scheduler_misfire_grace_time)
     push_environ(POSTGRES_USER, postgres_user)
@@ -54,7 +51,6 @@ def settings_fixture() -> Generator[Any, Any, Any]:
 
 
 def test_initialize_settings_valid_environment_variables(reset_settings: Any) -> None:
-    environment = "dev"
     scheduler_crontab_expr = "* * * * *"
     scheduler_misfire_grace_time = "100"
     postgres_user = "user"
@@ -63,7 +59,6 @@ def test_initialize_settings_valid_environment_variables(reset_settings: Any) ->
     postgres_host = "host"
     postgres_port = "100"
 
-    os.environ[ENVIRONMENT] = environment
     os.environ[SCHEDULER_CRONTAB_EXPR] = scheduler_crontab_expr
     os.environ[SCHEDULER_MISFIRE_GRACE_TIME] = scheduler_misfire_grace_time
     os.environ[POSTGRES_USER] = postgres_user
@@ -75,7 +70,6 @@ def test_initialize_settings_valid_environment_variables(reset_settings: Any) ->
     initialize_settings()
     settings = get_settings()
 
-    assert settings.environment == environment
     assert settings.scheduler_crontab_expr == scheduler_crontab_expr
     assert settings.scheduler_misfire_grace_time == int(scheduler_misfire_grace_time)
     assert settings.postgres_user == postgres_user
