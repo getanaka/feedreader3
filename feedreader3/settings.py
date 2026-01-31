@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 import logging
 
 logger = logging.getLogger("uvicorn." + __name__)
@@ -21,40 +20,44 @@ class Settings:
 _settings: Settings | None = None
 
 
-def initialize_settings(
-    load_dotenv_enabled: bool = True, dotenv_path: str | None = None
-) -> None:
+def initialize_settings() -> None:
     global _settings
     if _settings is not None:
         logger.warning("settings has been already initialized")
         return
-    _settings = Settings()
 
-    if load_dotenv_enabled:
-        load_dotenv(dotenv_path)
+    settings = Settings()
 
-    _settings.environment = os.getenv("ENVIRONMENT", "dev")
-    logger.info(f"settings.environment={_settings.environment}")
+    settings.environment = os.getenv("ENVIRONMENT", "dev")
+    logger.info(f"settings.environment={settings.environment}")
 
-    _settings.scheduler_crontab_expr = os.getenv("SCHEDULER_CRONTAB_EXPR", "0 * * * *")
-    logger.info(f"settings.scheduler_crontab_expr={_settings.scheduler_crontab_expr}")
+    settings.scheduler_crontab_expr = os.getenv(
+        "SCHEDULER_CRONTAB_EXPR", "*/10 * * * *"
+    )
+    logger.info(f"settings.scheduler_crontab_expr={settings.scheduler_crontab_expr}")
 
-    _settings.scheduler_misfire_grace_time = int(
-        os.getenv("SCHEDULER_MISFIRE_GRACE_TIME", 1)
+    settings.scheduler_misfire_grace_time = int(
+        os.getenv("SCHEDULER_MISFIRE_GRACE_TIME", 30)
     )
     logger.info(
-        f"settings.scheduler_misfire_grace_time={_settings.scheduler_misfire_grace_time}"
+        f"settings.scheduler_misfire_grace_time={settings.scheduler_misfire_grace_time}"
     )
 
-    _settings.postgres_user = os.getenv("POSTGRES_USER", "postgres")
-    logger.info(f"settings.postgres_user={_settings.postgres_user}")
-    _settings.postgres_password = os.getenv("POSTGRES_PASSWORD", "password")
-    _settings.postgres_db = os.getenv("POSTGRES_DB", "postgres")
-    logger.info(f"settings.postgres_db={_settings.postgres_db}")
-    _settings.postgres_host = os.getenv("POSTGRES_HOST", "db")
-    logger.info(f"settings.postgres_host={_settings.postgres_host}")
-    _settings.postgres_port = int(os.getenv("POSTGRES_PORT", 5432))
-    logger.info(f"settings.postgres_port={_settings.postgres_port}")
+    settings.postgres_user = get_required_environment_variable("POSTGRES_USER")
+    logger.info(f"settings.postgres_user={settings.postgres_user}")
+
+    settings.postgres_password = get_required_environment_variable("POSTGRES_PASSWORD")
+
+    settings.postgres_db = get_required_environment_variable("POSTGRES_DB")
+    logger.info(f"settings.postgres_db={settings.postgres_db}")
+
+    settings.postgres_host = get_required_environment_variable("POSTGRES_HOST")
+    logger.info(f"settings.postgres_host={settings.postgres_host}")
+
+    settings.postgres_port = int(get_required_environment_variable("POSTGRES_PORT"))
+    logger.info(f"settings.postgres_port={settings.postgres_port}")
+
+    _settings = settings
 
 
 def finalize_settings() -> None:
@@ -69,3 +72,10 @@ def get_settings() -> Settings:
     if _settings is None:
         raise RuntimeError("_settings is None. Call initialize_settings()")
     return _settings
+
+
+def get_required_environment_variable(key: str) -> str:
+    value = os.getenv(key)
+    if value is None:
+        raise ValueError(f"{key} is None")
+    return value

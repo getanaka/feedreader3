@@ -9,7 +9,8 @@ WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
-ENV UV_NO_DEV=1
+ARG UV_NO_DEV=1
+ENV UV_NO_DEV=${UV_NO_DEV}
 ENV UV_TOOL_BIN_DIR=/usr/local/bin
 
 RUN --mount=type=cache,target=/root/.cache/uv \
