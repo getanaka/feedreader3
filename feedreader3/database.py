@@ -14,7 +14,11 @@ def initialize_engine() -> None:
     settings = get_settings()
     url = f"postgresql+psycopg://{settings.postgres_user}:{settings.postgres_password}@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
     _engine = create_engine(url)
-    SQLModel.metadata.create_all(_engine)
+    try:
+        SQLModel.metadata.create_all(_engine)
+    except Exception:
+        _engine = None
+        raise
 
 
 def finalize_engine() -> None:
