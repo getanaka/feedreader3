@@ -11,10 +11,8 @@ from feedreader3.main import app
 
 
 def pytest_sessionstart(session: PytestSession) -> None:
-    initialize_settings(True, "tests/.env.test")
+    initialize_settings()
     settings = get_settings()
-    if settings.environment != "test":
-        pytest.exit("Tests require environment=test")
     if not settings.postgres_db.startswith("test_"):
         pytest.exit("Tests require postgres_db=test_*")
 

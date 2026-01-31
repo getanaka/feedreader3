@@ -1,0 +1,20 @@
+name: ci
+on: [push]
+env:
+  SCHEDULER_CRONTAB_EXPR: ${{ vars.CI_SCHEDULER_CRONTAB_EXPR }}
+  SCHEDULER_MISFIRE_GRACE_TIME: ${{ vars.CI_SCHEDULER_MISFIRE_GRACE_TIME }}
+  POSTGRES_USER: ${{ vars.CI_POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ vars.CI_POSTGRES_DB }}
+  POSTGRES_HOST: ${{ vars.CI_POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ vars.CI_POSTGRES_PORT }}
+jobs:
+  run-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - run: uv sync
+      - run: make qa
+      - run: docker compose -p feedreader3-test exec test sh -c 'test -t 0 && echo stdin-tty || echo stdin-notty; test -t 1 && echo stdout-tty || echo stdout-notty'

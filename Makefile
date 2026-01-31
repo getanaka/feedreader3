@@ -9,10 +9,13 @@ format:
 typecheck:
 	uv run mypy feedreader3 tests
 
+TEST_PROJECT = feedreader3-test
 test:
-	uv run pytest
+	@docker compose -p $(TEST_PROJECT) ps --status running | grep -q test || docker compose -p $(TEST_PROJECT) -f docker-compose.test.yml --env-file ./tests/.env.test up -d
+	@docker compose -p $(TEST_PROJECT) exec test uv run pytest
 
 coverage:
-	uv run pytest --cov
+	@docker compose -p $(TEST_PROJECT) ps --status running | grep -q test || docker compose -p $(TEST_PROJECT) -f docker-compose.test.yml --env-file ./tests/.env.test up -d
+	@docker compose -p $(TEST_PROJECT) exec test uv run pytest --cov
 
 qa: lint format typecheck test

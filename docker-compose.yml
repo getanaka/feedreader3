@@ -1,6 +1,14 @@
 services:
   web:
     build: .
+    environment:
+      SCHEDULER_CRONTAB_EXPR: ${SCHEDULER_CRONTAB_EXPR}
+      SCHEDULER_MISFIRE_GRACE_TIME: ${SCHEDULER_MISFIRE_GRACE_TIME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     depends_on:
       db:
         condition: service_healthy
@@ -13,6 +21,14 @@ services:
     command: ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "./feedreader3/main.py"]
   worker:
     build: .
+    environment:
+      SCHEDULER_CRONTAB_EXPR: ${SCHEDULER_CRONTAB_EXPR}
+      SCHEDULER_MISFIRE_GRACE_TIME: ${SCHEDULER_MISFIRE_GRACE_TIME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     depends_on:
       db:
         condition: service_healthy
@@ -23,16 +39,18 @@ services:
     command: ["uv", "run", "watchfiles", "python -m feedreader3.worker", "./feedreader3"]
   db:
     image: postgres:18.1
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
-    env_file:
-      - .env
     volumes:
       - ./db-data:/var/lib/postgresql
       - ./initdb:/docker-entrypoint-initdb.d
     restart: "no"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 10s
       timeout: 5s
       retries: 5

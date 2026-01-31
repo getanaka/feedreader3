@@ -9,7 +9,6 @@ dependencies = [
     "fastapi[standard]>=0.121.1",
     "feedparser>=6.0.12",
     "psycopg[binary]>=3.3.2",
-    "python-dotenv>=1.2.1",
     "sqlmodel>=0.0.27",
     "watchfiles>=1.1.1",
 ]
