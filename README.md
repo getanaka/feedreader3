@@ -1,10 +1,12 @@
 [![ci](https://github.com/getanaka/feedreader3/actions/workflows/ci.yml/badge.svg)](https://github.com/getanaka/feedreader3/actions/workflows/ci.yml)
 
-# README
+# FeedReader3
 
 ## 概要
 
 Pythonで実装されたシンプルなRSS/Atomフィードリーダー。
+
+外部のフィードを定期的に収集しAPI経由で参照可能にする、情報収集基盤となるバックエンドシステムを想定している。
 
 現時点では、フィードの登録管理API、フィードの定期収集ジョブ、収集したフィードの取得APIを、複数コンテナで構成されたPythonアプリケーションとして実装済み。
 
