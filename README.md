@@ -1,3 +1,5 @@
+[![ci](https://github.com/getanaka/feedreader3/actions/workflows/ci.yml/badge.svg)](https://github.com/getanaka/feedreader3/actions/workflows/ci.yml)
+
 # README
 
 ## 概要
