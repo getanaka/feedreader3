@@ -1,6 +1,9 @@
 from fastapi.testclient import TestClient
 from sqlmodel import Session
+from datetime import datetime, timezone
+
 from feedreader3.models.feed_source import FeedSource
+from feedreader3.models.feed_entry import FeedEntry
 
 
 def test_create_feed_source(client: TestClient) -> None:
@@ -181,3 +184,32 @@ def test_delete_feed_source(session: Session, client: TestClient) -> None:
 
     assert response.status_code == 204
     assert db_feed_source is None
+
+
+def test_delete_feed_source_with_entry(session: Session, client: TestClient) -> None:
+    feed_source = FeedSource(name="feed", feed_url="http://example.com/feed.xml")
+    session.add(feed_source)
+    session.commit()
+    feed_source_id = feed_source.id
+
+    feed_entry = FeedEntry(
+        first_seen_at=datetime(2026, 2, 3, tzinfo=timezone.utc),
+        feed_source_id=feed_source_id,
+        entry_id="feed_entry",
+        entry_title="Feed Entry",
+        entry_link="feed-entry.html",
+        entry_updated_at=datetime(2026, 2, 3, tzinfo=timezone.utc),
+    )
+    session.add(feed_entry)
+    session.commit()
+    feed_entry_id = feed_entry.id
+
+    response = client.delete(f"/feed-sources/{feed_source_id}")
+    session.expire_all()
+
+    db_feed_source = session.get(FeedSource, feed_source_id)
+    db_feed_entry = session.get(FeedEntry, feed_entry_id)
+
+    assert response.status_code == 204
+    assert db_feed_source is None
+    assert db_feed_entry is None
