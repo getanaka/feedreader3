@@ -1,6 +1,11 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
+
+from sqlalchemy.orm import Mapped
 from pydantic import AnyUrl, AnyHttpUrl, field_validator
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .feed_entry import FeedEntry
 
 
 def convert_url(url: Any) -> Any:
@@ -22,6 +27,10 @@ class FeedSourceBase(SQLModel):
 
 class FeedSource(FeedSourceBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+
+    feed_entries: Mapped[list["FeedEntry"]] = Relationship(
+        back_populates="feed_source", cascade_delete=True
+    )
 
 
 class FeedSourcePublic(FeedSourceBase):

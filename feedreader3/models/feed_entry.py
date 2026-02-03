@@ -11,7 +11,7 @@ from .feed_source import FeedSource
 
 
 class FeedEntryBase(SQLModel):
-    feed_source_id: int = Field(foreign_key="feedsource.id")
+    feed_source_id: int = Field(foreign_key="feedsource.id", ondelete="CASCADE")
     entry_id: str
     entry_title: str
     entry_link: str
@@ -34,7 +34,7 @@ class FeedEntry(FeedEntryBase, table=True):
     )
     first_seen_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
 
-    feed_source: FeedSource = Relationship()
+    feed_source: FeedSource = Relationship(back_populates="feed_entries")
 
 
 class FeedEntryCreate(FeedEntryBase):
